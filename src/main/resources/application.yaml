@@ -1,0 +1,51 @@
+spring:
+  application:
+    name: gag-accountancy
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    hikari:
+      minimumIdle: 10
+      maximumPoolSize: 500
+      connectionTimeout: 1000
+  flyway:
+    enabled: true
+    url: ${spring.datasource.url}
+    user: ${spring.datasource.username}
+    password: ${spring.datasource.password}
+    ignore-migration-patterns: '*:ignored' # Add this to avoid flyway error when trying to start app locally
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${VERIFICATION_EMAIL}
+    password: ${VERIFICATION_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
+        TYPE: TRACE
+
+app:
+  security:
+    jwt:
+      keystore-location: keys/keystore.jks
+      keystore-password: ${JWT_KEYSTORE_PASSWORD:}
+      key-alias: ${JWT_KEY_ALIAS:}
+      private-key-passphrase:  ${JWT_PREIVATE_KEY_PASSPHRASE:}
