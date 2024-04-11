@@ -1,4 +1,4 @@
-package com.lalpuria.gag.security;
+package com.lalpuria.gag.user;
 
 import com.lalpuria.gag.user.User;
 import lombok.Data;

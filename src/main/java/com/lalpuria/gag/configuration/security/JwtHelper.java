@@ -1,4 +1,4 @@
-package com.lalpuria.gag.security;
+package com.lalpuria.gag.configuration.security;
 
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;

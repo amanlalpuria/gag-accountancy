@@ -1,6 +1,5 @@
-package com.lalpuria.gag.security;
+package com.lalpuria.gag.user;
 
-import com.lalpuria.gag.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

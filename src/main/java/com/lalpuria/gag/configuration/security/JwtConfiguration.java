@@ -1,4 +1,4 @@
-package com.lalpuria.gag.security;
+package com.lalpuria.gag.configuration.security;
 
 import java.io.IOException;
 import java.io.InputStream;

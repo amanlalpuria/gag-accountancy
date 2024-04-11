@@ -1,4 +1,4 @@
-package com.lalpuria.gag.security;
+package com.lalpuria.gag.configuration.security;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
