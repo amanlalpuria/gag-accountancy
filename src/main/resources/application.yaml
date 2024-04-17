@@ -49,3 +49,8 @@ app:
       keystore-password: ${JWT_KEYSTORE_PASSWORD:}
       key-alias: ${JWT_KEY_ALIAS:}
       private-key-passphrase:  ${JWT_PREIVATE_KEY_PASSPHRASE:}
+      jwt_exp_time: 6
+
+rsa:
+  private-key: classpath:certs/private-key.pem
+  public-key: classpath:certs/public-key.pem

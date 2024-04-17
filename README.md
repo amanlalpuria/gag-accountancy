@@ -33,14 +33,18 @@ If wanted to created new keystore.jks file, create using above command. Copy tha
 curl --location 'localhost:8080/register' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-    "fullName": "User Full Name",
-    "email": "user5@gmail.com",
+    "fullName": "Aman Lalpuria",
+    "email": "amanlalpuria7@gmail.com",
     "password": "abcd1234",
-    "role": "USER"
+    "role": "ADMIN"
 }'
 ```
 2. Login
 ```curl
-curl --location --request POST 'localhost:8080/login?username=user%40gmail.com&password=abcd1234' \
---header 'Content-Type: application/x-www-form-urlencoded'
+curl --location 'localhost:8080/login' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "username": "amanlalpuria7@gmail.com",
+    "password": "abcd1234"
+}'
 ```

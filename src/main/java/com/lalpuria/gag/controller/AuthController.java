@@ -1,63 +1,58 @@
 package com.lalpuria.gag.controller;
 
-import com.lalpuria.gag.controller.resource.LoginRequest;
-import com.lalpuria.gag.controller.resource.LoginResult;
-import com.lalpuria.gag.configuration.security.JwtHelper;
-import com.lalpuria.gag.user.User;
-import com.lalpuria.gag.user.UserRepository;
+import com.lalpuria.gag.configuration.security.JwtUtils;
+import com.lalpuria.gag.controller.resource.AuthDTO;
+import com.lalpuria.gag.user.UserRegistrationDetails;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.time.temporal.ChronoUnit;
 
 @RestController
+@Slf4j
 @RequiredArgsConstructor
 public class AuthController {
-
-    private final JwtHelper jwtHelper;
-    private final UserRepository userRepository;
+    private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtils jwtUtils;
+    private AuthenticationManager authenticationManager;
+
+    @Value("${app.security.jwt.jwt_exp_time}")
+    private int  JWT_EXP_TIME;
 
     @PostMapping(path = "login", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public LoginResult login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<AuthDTO.LoginResponse> login(@RequestBody AuthDTO.LoginRequest userLogin) {
 
-        Optional<User> userDetails;
-        try {
-            userDetails = userRepository.findByEmail(loginRequest.getUsername());
-        } catch (UsernameNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found");
-        }
+        Authentication authentication =
+                authenticationManager
+                        .authenticate(new UsernamePasswordAuthenticationToken(
+                                userLogin.username(),
+                                userLogin.password()));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        if (passwordEncoder.matches(loginRequest.getPassword(), userDetails.get().getPassword())) {
-            Map<String, String> claims = new HashMap<>();
-            claims.put("username", userDetails.get().getFullName());
+        UserRegistrationDetails userDetails = (UserRegistrationDetails) authentication.getPrincipal();
 
-            List<GrantedAuthority> authorities = Arrays.stream(userDetails.get().getRole()
-                            .split(","))
-                    .map(SimpleGrantedAuthority::new)
-                    .collect(Collectors.toList());;
-            claims.put("authorities", authorities.toString());
-//            claims.put("updatedAt", userDetails.get().getUpdatedAt().toString());
 
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTimeInMillis(Instant.now().toEpochMilli());
-            calendar.add(Calendar.DATE, 1);
+        log.info("Token requested for user :{}", authentication.getAuthorities());
+        Instant now = Instant.now();
+        now.plus(90, ChronoUnit.MINUTES);
+        String token = jwtUtils.generateToken(authentication, now, now.plus(90, ChronoUnit.MINUTES));
 
-            String jwt = jwtHelper.createJwtForClaims(loginRequest.getUsername(), claims, calendar.getTime());
-            return new LoginResult(jwt, calendar.getTime());
-        }
+        AuthDTO.LoginResponse response = new AuthDTO.LoginResponse("User logged in successfully", token,now );
 
-        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not authenticated");
+        return ResponseEntity.ok(response);
     }
 }
